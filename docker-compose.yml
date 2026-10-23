@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  worker:
+    build:
+      context: ./worker
+      network: host
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

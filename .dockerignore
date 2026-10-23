@@ -1,0 +1,7 @@
+node_modules
+worker
+.git
+dist
+executionArea
+.env
+.env.*
